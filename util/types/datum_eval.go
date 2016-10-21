@@ -373,7 +373,7 @@ func ComputeIntDiv(a, b Datum) (d Datum, err error) {
 		}
 	}
 
-	// if either is not integer, use decimal to calculate
+	// If either is not integer, use decimal to calculate
 	x, err := a.ToDecimal()
 	if err != nil {
 		return d, errors.Trace(err)
@@ -396,7 +396,7 @@ func ComputeIntDiv(a, b Datum) (d Datum, err error) {
 	return d, nil
 }
 
-// decimal2RoundUint convert a MyDecimal to a uint64 after rounding.
+// decimal2RoundUint converts a MyDecimal to an uint64 after rounding.
 func decimal2RoundUint(x *mysql.MyDecimal) (uint64, error) {
 	roundX := new(mysql.MyDecimal)
 	x.Round(roundX, 0)
@@ -427,7 +427,7 @@ func ComputeBitAnd(a, b Datum) (d Datum, err error) {
 		d.SetUint64(a.GetUint64() & b.GetUint64())
 		return
 	}
-	// if either is not integer, we round the operands and then use uint64 to calculate.
+	// If either is not integer, we round the operands and then use uint64 to calculate.
 	x, err := a.ToDecimal()
 	if err != nil {
 		return d, errors.Trace(err)
@@ -458,8 +458,7 @@ func ComputeBitOr(a, b Datum) (d Datum, err error) {
 		d.SetUint64(a.GetUint64() | b.GetUint64())
 		return
 	}
-
-	// if either is not integer, use decimal to calculate
+	// If either is not integer, use decimal to calculate
 	x, err := a.ToDecimal()
 	if err != nil {
 		return d, errors.Trace(err)
@@ -490,7 +489,7 @@ func ComputeBitNeg(a Datum) (d Datum, err error) {
 		d.SetUint64(^a.GetUint64())
 		return
 	}
-	// if either is not integer, we round the operands and then use uint64 to calculate.
+	// If either is not integer, we round the operands and then use uint64 to calculate.
 	x, err := a.ToDecimal()
 	if err != nil {
 		return d, errors.Trace(err)
@@ -512,8 +511,7 @@ func ComputeBitXor(a, b Datum) (d Datum, err error) {
 		d.SetUint64(a.GetUint64() ^ b.GetUint64())
 		return
 	}
-
-	// if either is not integer, we round the operands and then use uint64 to calculate.
+	// If either is not integer, we round the operands and then use uint64 to calculate.
 	x, err := a.ToDecimal()
 	if err != nil {
 		return d, errors.Trace(err)
@@ -537,15 +535,14 @@ func ComputeBitXor(a, b Datum) (d Datum, err error) {
 	return d, nil
 }
 
-// ComputeLeftShift computes the result of a >>  b.
+// ComputeLeftShift computes the result of a >> b.
 func ComputeLeftShift(a, b Datum) (d Datum, err error) {
 	aKind, bKind := a.Kind(), b.Kind()
 	if (aKind == KindInt64 || aKind == KindUint64) && (bKind == KindInt64 || bKind == KindUint64) {
 		d.SetUint64(a.GetUint64() << b.GetUint64())
 		return
 	}
-
-	// if either is not integer, we round the operands and then use uint64 to calculate.
+	// If either is not integer, we round the operands and then use uint64 to calculate.
 	x, err := a.ToDecimal()
 	if err != nil {
 		return d, errors.Trace(err)
@@ -576,7 +573,7 @@ func ComputeRightShift(a, b Datum) (d Datum, err error) {
 		d.SetUint64(a.GetUint64() >> b.GetUint64())
 		return
 	}
-	// if either is not integer, we round the operands and then use uint64 to calculate.
+	// If either is not integer, we round the operands and then use uint64 to calculate.
 	x, err := a.ToDecimal()
 	if err != nil {
 		return d, errors.Trace(err)
