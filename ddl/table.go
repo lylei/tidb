@@ -16,6 +16,7 @@ package ddl
 import (
 	"github.com/juju/errors"
 	"github.com/pingcap/tidb/infoschema"
+	"github.com/pingcap/tidb/kv"
 	"github.com/pingcap/tidb/meta"
 	"github.com/pingcap/tidb/meta/autoid"
 	"github.com/pingcap/tidb/model"
@@ -78,8 +79,18 @@ func (d *ddl) onCreateTable(t *meta.Meta, job *model.Job) error {
 }
 
 func (d *ddl) delReorgTable(t *meta.Meta, job *model.Job) error {
+	var prefix kv.Key
+	if err := job.DecodeArgs(&prefix); err != nil {
+		// arg error, cancel this job.
+		job.State = model.JobCancelled
+		return errors.Trace(err)
+	}
+	if prefix == nil {
+		prefix = tablecodec.EncodeTablePrefix(job.ID)
+	}
+
 	limit := defaultBatchSize
-	delCount, err := d.dropTableData(job.TableID, job, limit)
+	delCount, err := d.dropTableData(prefix, job, limit)
 	if err != nil {
 		return errors.Trace(err)
 	}
@@ -170,8 +181,8 @@ func (d *ddl) getTableInfo(t *meta.Meta, job *model.Job) (*model.TableInfo, erro
 }
 
 // delKeysWithPrefix deletes data in a limited number. If limit < 0, deletes all data.
-func (d *ddl) dropTableData(tID int64, job *model.Job, limit int) (int, error) {
-	delCount, err := d.delKeysWithPrefix(tablecodec.EncodeTablePrefix(tID), bgJobFlag, job, limit)
+func (d *ddl) dropTableData(prefix kv.Key, job *model.Job, limit int) (int, error) {
+	delCount, err := d.delKeysWithPrefix(prefix, bgJobFlag, job, limit)
 	return delCount, errors.Trace(err)
 }
 
